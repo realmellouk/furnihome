@@ -1,0 +1,978 @@
+FurniHome Presentation Report
+
+1. Project Overview
+
+FurniHome is a Laravel furniture e-commerce website. It lets users browse furniture categories, view product details, choose product variants, add products to a cart, checkout, and view order history.
+
+The problem it solves:
+Customers can explore furniture online instead of visiting a physical shop first. They can compare products, see prices, choose variants, and place an order from home.
+
+Target users:
+- Normal customers looking for furniture.
+- Store/admin staff who manage products and orders.
+
+What makes it useful:
+- Clean furniture-focused design.
+- Product categories and collections.
+- Cart and checkout system.
+- Admin dashboard for products and order status.
+- Delivery and installation information included in checkout.
+
+
+2. Technologies Used
+
+- Laravel 12 / PHP 8.2: backend framework, routing, controllers, validation, authentication, database models.
+- MySQL / MariaDB: stores users, products, categories, carts, orders, payments, deliveries, installations.
+- Blade views: frontend templates in resources/views.
+- CSS/JS: active frontend uses public/css/furnihome.css, public/css/admin.css, and public/js/furnihome.js.
+- Vite/Tailwind: configured in vite.config.js, resources/css/app.css, and resources/js/app.js, but the main layout currently loads the public CSS/JS files directly.
+- Laravel packages: standard Laravel framework, Tinker, PHPUnit, Pint, Sail, Faker, Collision.
+
+Important files:
+- routes/web.php
+- composer.json
+- package.json
+- vite.config.js
+
+
+3. Website Pages And Features
+
+Home
+- URL/route: /
+- Controller: app/Http/Controllers/HomeController.php
+- View: resources/views/home.blade.php
+- User can view hero section, categories, collections, product catalog, about section, and contact section.
+- Screenshots to take: homepage hero, category section, products grid.
+
+Collection page
+- URL/route: /collections/{slug}
+- Controller: app/Http/Controllers/CollectionController.php
+- View: resources/views/collections/show.blade.php
+- User can view curated collection information and return to filtered products.
+- Screenshots to take: one collection page.
+
+Product details
+- URL/route: /products/{product}
+- Controller: app/Http/Controllers/ProductController.php
+- View: resources/views/products/show.blade.php
+- User can see product images, variants, dimensions, material, price, quantity selector, Add to Cart, and Buy Now.
+- Screenshots to take: product page with variant thumbnails.
+
+Login
+- URL/route: /login
+- Controller: app/Http/Controllers/AuthController.php
+- View: resources/views/auth/login.blade.php
+- User can login using email and password.
+- Screenshots to take: login page.
+
+Register
+- URL/route: /register
+- Controller: app/Http/Controllers/AuthController.php
+- View: resources/views/auth/register.blade.php
+- User can create a customer account with name, email, phone, and password.
+- Screenshots to take: register page.
+
+Cart
+- URL/route: /cart
+- Controller: app/Http/Controllers/CartController.php
+- View: resources/views/cart/index.blade.php
+- User can view cart items, update quantity, remove products, and go to checkout.
+- Screenshots to take: cart with products.
+
+Checkout
+- URL/route: /checkout
+- Controller: app/Http/Controllers/CheckoutController.php
+- View: resources/views/checkout/index.blade.php
+- User can enter delivery information, choose installation, choose cash/card simulation, and place order.
+- Screenshots to take: checkout form and order summary.
+
+Order confirmation
+- URL/route: /orders/{order}/confirmation
+- Controller: app/Http/Controllers/CheckoutController.php
+- View: resources/views/orders/confirmation.blade.php
+- User can see confirmed order number, total, payment status, delivery status, and installation status.
+- Screenshots to take: confirmation card.
+
+My Orders
+- URL/route: /my-orders
+- Controller: app/Http/Controllers/OrderController.php
+- View: resources/views/orders/index.blade.php
+- User can see order history, filter by status visually, and open invoice.
+- Screenshots to take: order history page.
+
+Order invoice
+- URL/route: /my-orders/{order}
+- Controller: app/Http/Controllers/OrderController.php
+- View: resources/views/orders/show.blade.php
+- User can see products, delivery information, payment information, and total.
+- Screenshots to take: invoice/details page.
+
+Admin dashboard
+- URL/route: /admin/dashboard
+- Controller: app/Http/Controllers/Admin/AdminDashboardController.php
+- View: resources/views/admin/dashboard.blade.php
+- Admin can view stats, sales total, latest orders, and top products.
+- Screenshots to take: dashboard.
+
+Admin products
+- URL/route: /admin/products
+- Controller: app/Http/Controllers/Admin/AdminProductController.php
+- Views: resources/views/admin/products/
+- Admin can list, add, edit, and delete products.
+- Screenshots to take: product table and create/edit form.
+
+Admin orders
+- URL/route: /admin/orders
+- Controller: app/Http/Controllers/Admin/AdminOrderController.php
+- View: resources/views/admin/orders/index.blade.php
+- Admin can update order, payment, delivery, and installation statuses.
+- Screenshots to take: admin order status table.
+
+
+4. Normal User Journey
+
+1. User visits /.
+2. User browses categories and collections.
+3. User filters products by category.
+4. User opens a product page from /products/{product}.
+5. User selects a variant and quantity.
+6. If not logged in, Add to Cart and Buy Now redirect to login.
+7. User registers or logs in.
+8. User adds product to cart.
+9. User opens /cart, updates quantity, or removes items.
+10. User clicks checkout.
+11. User enters name, email, phone, city, address, and delivery note.
+12. User chooses free installation or no installation.
+13. User chooses cash on delivery or simulated card payment.
+14. System creates order, order items, payment, delivery, and installation records.
+15. Cart is cleared.
+16. User sees order confirmation.
+17. User can view order history and invoice in /my-orders.
+
+Important note:
+No wishlist feature exists in the code.
+
+
+5. Admin Journey
+
+1. Admin logs in using admin@furnihome.com.
+2. Login redirects admin to /admin/dashboard.
+3. Admin sees:
+- total products
+- completed orders
+- cancelled orders
+- customers
+- total sales
+- latest orders
+- latest products
+4. Admin opens /admin/products.
+5. Admin can add, edit, or delete products.
+6. Product form supports category, name, price, old price, dimensions, material, description, and main image upload.
+7. Admin opens /admin/orders.
+8. Admin can update:
+- order status
+- payment status
+- delivery status
+- installation status
+
+Important note:
+There is no separate admin page for managing categories, users, contact messages, reviews, delivery staff, or installation staff.
+
+
+6. Database Explanation
+
+Live local database currently has:
+- 8 categories
+- 23 products
+- 69 variants
+- 3 users
+- 2 orders
+- 0 cart items
+
+Main tables:
+
+users
+- Purpose: stores customers/admin accounts.
+- Important columns: name, email, password, phone, role.
+- Relationship: user has carts, orders, addresses, and reviews.
+
+categories
+- Purpose: stores furniture categories.
+- Important columns: name, description, image.
+- Relationship: category has many products.
+
+products
+- Purpose: stores furniture catalog.
+- Important columns: category_id, name, description, price, old_price, material, dimensions, stock, status, main_image.
+- Relationship: product belongs to category.
+
+product_variants
+- Purpose: stores product image/color variants.
+- Important columns: product_id, color_name, image, stock_quantity, price.
+- Relationship: variant belongs to product.
+
+carts
+- Purpose: stores one user cart.
+- Important columns: user_id.
+- Relationship: cart belongs to user.
+
+cart_items
+- Purpose: stores items inside cart.
+- Important columns: cart_id, product_id, product_variant_id, quantity, price.
+- Relationship: item belongs to cart, product, and variant.
+
+orders
+- Purpose: stores customer orders.
+- Important columns: user_id, order_number, subtotal, delivery_fee, installation_fee, total, status.
+- Relationship: order belongs to user.
+
+order_items
+- Purpose: stores products bought in an order.
+- Important columns: order_id, product_id, variant_id, product_name, quantity, price, total.
+- Relationship: item belongs to order.
+
+payments
+- Purpose: stores payment information.
+- Important columns: order_id, payment_method, payment_status, amount, transaction_reference.
+- Relationship: payment belongs to order.
+
+deliveries
+- Purpose: stores delivery information.
+- Important columns: order_id, full_name, phone, city, address, delivery_fee, status.
+- Relationship: delivery belongs to order.
+
+installations
+- Purpose: stores installation request/status.
+- Important columns: order_id, is_requested, installation_fee, status.
+- Relationship: installation belongs to order.
+
+addresses
+- Purpose: stores saved address structure.
+- Important columns: user_id, full_name, phone, city, address_line.
+- Important note: table exists, but checkout currently saves address to deliveries.
+
+reviews
+- Purpose: stores product reviews.
+- Important columns: user_id, product_id, order_id, rating, comment, status.
+- Important note: table exists, but no review UI is implemented.
+
+Simple database diagram:
+
+User
+  - Cart
+    - Cart Items
+      - Products
+      - Product Variant
+  - Orders
+    - Order Items
+      - Products
+    - Payment
+    - Delivery
+    - Installation
+
+Simple explanation for teachers:
+One user can have a cart and many orders. Products are organized by categories. When checkout happens, cart items become order items, and the system creates payment, delivery, and installation records.
+
+
+7. Code Logic Explanation
+
+Authentication:
+- Controlled by AuthController.
+- Login validates email and password.
+- Register validates name, email, phone, and password confirmation.
+- Passwords are hashed.
+- Session is regenerated after login/register.
+- Logout invalidates the session.
+
+Admin permissions:
+- Controlled by AdminMiddleware.
+- Admin access is based on email admin@furnihome.com.
+- The role column exists, but the actual middleware does not use role = admin.
+
+Product management:
+- Public products are loaded in HomeController.
+- Product details are loaded in ProductController.
+- Admin product CRUD is in AdminProductController.
+- Admin image uploads go to public/images/products/admin.
+
+Cart logic:
+- Only logged-in users can access cart routes.
+- CartController@store validates product, variant, and quantity.
+- If the same product and same variant already exist, quantity increases.
+- Otherwise, a new cart item is created.
+- Users can update quantity or remove items.
+- Security: users cannot update/delete another user's cart item.
+
+Order logic:
+- CheckoutController@store validates checkout form.
+- It calculates subtotal, delivery fee of 50 MAD, installation fee of 0 MAD.
+- It creates order, order items, payment, delivery, and installation inside a database transaction.
+- Card payment is simulated: payment becomes paid and gets a random reference.
+- Cash on delivery stays pending.
+- After order creation, cart items are deleted.
+
+Validations:
+- Product creation validates category, name, price, dimensions, material, and image type.
+- Login/register validate required fields.
+- Checkout validates customer information, installation option, payment method, and required card fields if card is selected.
+
+Security:
+- Laravel CSRF tokens are used in forms.
+- Passwords are hashed.
+- Auth middleware protects cart, checkout, and orders.
+- Admin middleware protects admin pages.
+- Order pages check that the order belongs to the logged-in user.
+
+
+8. Strengths
+
+- Professional furniture design and branding.
+- Complete customer shopping flow from product browsing to order confirmation.
+- Product variants with image switching.
+- Cart quantity update and remove actions.
+- Checkout includes delivery, installation, and payment simulation.
+- Admin dashboard exists.
+- Admin can manage products and update order statuses.
+- Database relationships are well separated.
+- Good use of Laravel models and controllers.
+- The site has real local product/category data.
+
+
+9. Weaknesses Or Limitations
+
+Present these professionally:
+
+- Admin permission uses a fixed email instead of the role column. Improvement: use role = admin.
+- Categories cannot be managed from admin UI. Improvement: add category CRUD.
+- Contact form only shows a frontend success message; it does not save messages.
+- Coupon/promo inputs are visual only; no discount logic is implemented.
+- Cancel Order button appears in order history but has no backend route.
+- Forgot password link appears but no reset route is implemented.
+- Reviews table/model exists, but users cannot submit reviews yet.
+- Address table exists, but checkout stores delivery address directly in deliveries.
+- Delivery staff and installation staff columns exist, but there is no staff assignment screen.
+- Automated feature test fails because the test database is missing categories; local MySQL migrations are run, but test setup needs migration/seed configuration.
+
+
+10. Suggested Presentation Structure For 5 Members
+
+Member 1: Introduction and project overview
+- Slides: 1-3
+- Time: 2-3 minutes
+- Speaking points:
+  - Introduce FurniHome.
+  - Explain problem and target users.
+  - Explain why furniture e-commerce is useful.
+
+Member 2: Technologies and project structure
+- Slides: 4-5
+- Time: 2 minutes
+- Speaking points:
+  - Laravel handles backend.
+  - MySQL stores data.
+  - Blade builds pages.
+  - CSS/JS improves design and interactions.
+
+Member 3: Customer journey
+- Slides: 6-8
+- Time: 3 minutes
+- Speaking points:
+  - Homepage, categories, products.
+  - Product details, variants, cart.
+  - Checkout and order confirmation.
+
+Member 4: Admin journey and database
+- Slides: 9-11
+- Time: 3 minutes
+- Speaking points:
+  - Admin dashboard.
+  - Product management.
+  - Order status management.
+  - Explain database diagram simply.
+
+Member 5: Code logic, strengths, limits, conclusion
+- Slides: 12-14
+- Time: 3 minutes
+- Speaking points:
+  - Authentication and security.
+  - Cart/order logic.
+  - Strengths and future improvements.
+  - Final conclusion.
+
+
+11. Slide-By-Slide PowerPoint Plan
+
+Slide 1: FurniHome
+- Content: Project name, team members, furniture e-commerce website.
+- Screenshot/image needed: homepage hero.
+- Presenter: Member 1.
+- What to say: Introduce the project and team.
+
+Slide 2: Project Idea
+- Content: Online furniture browsing, cart, checkout, admin management.
+- Screenshot/image needed: products section.
+- Presenter: Member 1.
+- What to say: Explain the main purpose of the website.
+
+Slide 3: Target Users
+- Content: Customers and admin/store staff.
+- Screenshot/image needed: customer/admin icons or screenshots.
+- Presenter: Member 1.
+- What to say: Explain who uses the website.
+
+Slide 4: Technologies
+- Content: Laravel, PHP, MySQL, Blade, CSS, JS, Vite.
+- Screenshot/image needed: code/project structure screenshot.
+- Presenter: Member 2.
+- What to say: Explain the role of each technology.
+
+Slide 5: Project Structure
+- Content: routes, controllers, models, views, public assets, migrations.
+- Screenshot/image needed: folder tree.
+- Presenter: Member 2.
+- What to say: Explain how the code is organized.
+
+Slide 6: Homepage
+- Content: Categories, collections, products, contact.
+- Screenshot/image needed: homepage sections.
+- Presenter: Member 3.
+- What to say: Explain what the visitor sees first.
+
+Slide 7: Product Details
+- Content: Variants, price, dimensions, quantity, add to cart.
+- Screenshot/image needed: product details page.
+- Presenter: Member 3.
+- What to say: Explain how a customer selects a product.
+
+Slide 8: Cart And Checkout
+- Content: Cart update, delivery info, payment simulation.
+- Screenshot/image needed: cart and checkout.
+- Presenter: Member 3.
+- What to say: Explain how buying works.
+
+Slide 9: Orders
+- Content: Confirmation, order history, invoice.
+- Screenshot/image needed: My Orders / invoice.
+- Presenter: Member 3 or 4.
+- What to say: Explain how customers follow their orders.
+
+Slide 10: Admin Dashboard
+- Content: Stats, sales, latest orders/products.
+- Screenshot/image needed: admin dashboard.
+- Presenter: Member 4.
+- What to say: Explain what the admin sees.
+
+Slide 11: Admin Management
+- Content: Products CRUD, order status updates.
+- Screenshot/image needed: admin products/orders.
+- Presenter: Member 4.
+- What to say: Explain admin actions.
+
+Slide 12: Database Design
+- Content: Users, products, cart, orders, payment, delivery.
+- Screenshot/image needed: simple database diagram.
+- Presenter: Member 4.
+- What to say: Explain relationships simply.
+
+Slide 13: Backend Logic
+- Content: Auth, cart, checkout transaction, permissions.
+- Screenshot/image needed: controller snippets.
+- Presenter: Member 5.
+- What to say: Explain the most important logic.
+
+Slide 14: Strengths And Future Work
+- Content: Strengths, limitations, improvements.
+- Screenshot/image needed: final UI collage.
+- Presenter: Member 5.
+- What to say: Explain what is good and what can be improved.
+
+Slide 15: Conclusion
+- Content: What we learned and final message.
+- Screenshot/image needed: FurniHome logo/homepage.
+- Presenter: Member 5.
+- What to say: Close the presentation.
+
+
+12. Full Speech Script
+
+Member 1:
+
+Good morning teacher and classmates. Today we are presenting our Laravel project called FurniHome. FurniHome is an online furniture shopping website. The idea is simple: instead of going directly to a furniture store, the customer can browse products online, see categories, view product details, add items to the cart, and place an order.
+
+The website is made for two types of users. The first type is the normal customer, who wants to buy furniture. The second type is the admin, who manages products and orders. FurniHome is useful because it makes furniture shopping easier, faster, and more organized.
+
+Member 2:
+
+Now I will explain the technologies used in the project. The backend is built with Laravel, which is a PHP framework. Laravel helps us organize routes, controllers, models, validation, authentication, and database operations.
+
+The database is MySQL. It stores users, categories, products, carts, orders, payments, deliveries, and installation requests. For the frontend, we used Blade templates, which are Laravel view files. We also used custom CSS and JavaScript for design, animations, product filters, variant image switching, and checkout payment fields.
+
+Member 3:
+
+I will explain the customer journey. First, the customer visits the homepage. On the homepage, they can see the hero section, categories, collections, and product list. The customer can filter products by category, for example Living Room, Bedroom, Dining Room, Office, and Decor.
+
+When the customer clicks a product, they go to the product details page. There they can see the product image, description, price, material, dimensions, and available variants. They can choose a variant and quantity. If they are not logged in, the website asks them to login. After login, they can add the product to the cart or buy it directly.
+
+In the cart page, the customer can increase or decrease quantity, remove products, and continue to checkout. In checkout, they enter delivery information, choose free installation or no installation, and choose cash on delivery or simulated card payment. After placing the order, they see an order confirmation page. Later, they can open My Orders and see their order history and invoice.
+
+Member 4:
+
+I will explain the admin side and database. The admin logs in using the admin email and goes to the admin dashboard. The dashboard shows total products, completed orders, cancelled orders, customers, total sales, latest orders, and latest products.
+
+The admin can manage products. They can add a new product, edit an existing product, upload an image, or delete a product. The admin can also manage orders. In the orders page, the admin can update the order status, payment status, delivery status, and installation status.
+
+The database is organized into related tables. Users can have carts and orders. Categories contain products. Products have variants. Cart items become order items after checkout. Each order has payment, delivery, and installation information. This structure makes the project organized and easy to extend in the future.
+
+Member 5:
+
+I will explain the important backend logic. Authentication is handled by Laravel. Passwords are hashed, forms use CSRF protection, and private pages are protected by middleware. Cart, checkout, and order pages require login. Admin pages require the admin middleware.
+
+The cart logic checks the selected product and variant. If the same product and variant already exist in the cart, the quantity is increased. The checkout logic calculates subtotal, delivery fee, and total. Then it creates the order, order items, payment, delivery, and installation records inside a database transaction. This is important because it keeps the order data consistent.
+
+The strengths of FurniHome are the clean design, complete shopping flow, product variants, cart, checkout, order history, and admin management. Some future improvements are adding real payment integration, category management, contact message storage, reviews, coupon logic, and better role-based admin permissions.
+
+To conclude, FurniHome is a functional Laravel e-commerce project for furniture shopping. It shows how frontend design, backend logic, and database relationships work together in a real website. Thank you for listening.
+
+
+13. Possible Teacher Questions And Answers
+
+Q: Why did you choose Laravel?
+A: Laravel gives us routing, controllers, models, validation, authentication, and security tools. It helps us build the project faster and in an organized way.
+
+Q: Why MySQL?
+A: MySQL is good for structured data like users, products, carts, and orders. It also works well with Laravel and XAMPP.
+
+Q: How does the cart system work?
+A: Each logged-in user has a cart. Cart items store the product, selected variant, quantity, and price. If the same product and variant are added again, the quantity increases.
+
+Q: How does checkout work?
+A: Checkout validates customer information, calculates subtotal plus 50 MAD delivery fee, creates the order and related records, then clears the cart.
+
+Q: Is the card payment real?
+A: No. It is a simulation. The card fields are validated, but real payment processing is not integrated.
+
+Q: What is the role of the admin?
+A: The admin can view dashboard statistics, manage products, and update order, payment, delivery, and installation statuses.
+
+Q: Does the project have roles?
+A: The database has a role column, but the current admin access is checked using the email admin@furnihome.com. A future improvement is using the role column properly.
+
+Q: What problems did you face?
+A: Organizing the checkout flow was challenging because one checkout creates many records: order, order items, payment, delivery, and installation.
+
+Q: How did you solve it?
+A: The project uses a database transaction, so all checkout records are created together. If something fails, the database does not save incomplete order data.
+
+Q: What future features would you add?
+A: Real online payment, wishlist, product reviews, category admin management, contact messages, coupon system, order cancellation, and better role management.
+
+
+14. Project Development Process Explanation
+
+Purpose of this section:
+This part explains how the project was built from the idea to the final result. It is useful for a school jury because it shows that the project was planned, developed, tested, and improved step by step.
+
+
+A. Project Idea And Planning
+
+Presentation slide content:
+- We chose the idea of an online furniture e-commerce website.
+- The problem: customers need an easier way to browse furniture, compare products, and order from home.
+- Target users:
+  - Customers who want to buy furniture.
+  - Admin/store staff who manage products and orders.
+- Main planned features:
+  - Homepage with categories and collections.
+  - Product catalog and product details.
+  - Product variants.
+  - Cart and checkout.
+  - Order history and invoice.
+  - Admin dashboard.
+  - Product and order management.
+
+Simple speech for the presenter:
+"At the beginning, we started by choosing a project idea that is useful and close to real business needs. We selected an online furniture e-commerce website because furniture stores need a way to show products online and help customers order easily. Our target users are customers and admin/store staff. Before development, we planned the main features: browsing products, viewing details, adding products to cart, checkout, order history, and an admin dashboard for managing products and orders."
+
+Key screenshots to show:
+- Homepage hero section.
+- Product catalog.
+- Admin dashboard.
+
+Estimated speaking time:
+- 1 minute.
+
+
+B. Database Planning
+
+Presentation slide content:
+- We identified the main entities:
+  - users
+  - categories
+  - products
+  - product variants
+  - carts
+  - cart items
+  - orders
+  - order items
+  - payments
+  - deliveries
+  - installations
+- We separated the database into multiple related tables to keep data organized.
+- Example relationship:
+  - A customer has a cart.
+  - A cart has cart items.
+  - Cart items refer to products and variants.
+  - During checkout, cart items become order items.
+  - Each order has payment, delivery, and installation information.
+
+Simple speech for the presenter:
+"After choosing the idea, we planned the database. We identified the important entities such as users, categories, products, variants, carts, orders, payments, deliveries, and installations. We separated the database into multiple related tables because this is cleaner and easier to maintain. For example, products are stored separately from categories, and orders are stored separately from payments and deliveries. This makes the system more organized. A customer has a cart, the cart contains products, and after checkout the cart becomes an order."
+
+Key screenshots to show:
+- Database diagram slide.
+- Migration files list.
+- Optional phpMyAdmin table list.
+
+Estimated speaking time:
+- 1 minute.
+
+
+C. Backend Development
+
+Presentation slide content:
+- Laravel was used to organize the backend.
+- Routes define the URLs.
+- Controllers handle actions and business logic.
+- Models connect Laravel to database tables.
+- Middleware protects private pages.
+- Validation checks user input.
+- Authentication:
+  - login
+  - register
+  - logout
+- Admin access:
+  - protected by admin middleware.
+  - currently checks the admin email: admin@furnihome.com.
+- Main backend features developed:
+  - product display
+  - product management
+  - cart logic
+  - checkout logic
+  - order history
+  - admin order status updates
+
+Simple speech for the presenter:
+"For backend development, we used Laravel because it gives a clear structure. Routes define website links, controllers control what happens when the user clicks or submits a form, and models communicate with the database. Middleware protects private pages like cart, checkout, orders, and admin pages. We also used validation to check forms before saving data. Authentication allows users to register, login, and logout. Admin pages are protected by admin middleware. In the current project, admin access is checked using the email admin@furnihome.com."
+
+Key screenshots to show:
+- routes/web.php.
+- Controllers folder.
+- AuthController, CartController, CheckoutController.
+- AdminMiddleware.
+
+Estimated speaking time:
+- 1.5 minutes.
+
+
+D. Frontend Development
+
+Presentation slide content:
+- Blade templates were used to create the pages.
+- CSS was used for layout, colors, spacing, and responsive design.
+- JavaScript was used for interactions:
+  - product category filtering
+  - variant image switching
+  - quantity selector
+  - checkout card fields
+  - order tabs
+- Main pages created:
+  - homepage
+  - product details
+  - cart
+  - checkout
+  - order confirmation
+  - order history
+  - admin dashboard
+  - admin products
+  - admin orders
+
+Simple speech for the presenter:
+"For the frontend, we used Laravel Blade templates. Blade helps us display dynamic data from the database, such as categories, products, prices, and orders. We used CSS to create the visual style of FurniHome, including the homepage, product cards, cart, checkout, and admin dashboard. We also used JavaScript for small interactions, such as filtering products by category, changing product variant images, updating the quantity on the product page, showing card payment fields, and filtering orders."
+
+Key screenshots to show:
+- resources/views folder.
+- public/css/furnihome.css.
+- public/js/furnihome.js.
+- Homepage, product page, cart, checkout, and admin pages.
+
+Estimated speaking time:
+- 1.5 minutes.
+
+
+E. Testing And Corrections
+
+Presentation slide content:
+- We tested the customer journey:
+  - browse homepage
+  - open product
+  - choose variant and quantity
+  - add to cart
+  - update cart
+  - checkout
+  - see confirmation
+  - open order history and invoice
+- We tested the admin journey:
+  - login as admin
+  - open dashboard
+  - manage products
+  - update order statuses
+- Future improvements:
+  - real payment gateway
+  - product reviews
+  - coupon logic
+  - category CRUD
+  - contact message storage
+  - better role-based admin permissions
+
+Simple speech for the presenter:
+"After development, we tested the website from both sides. First, we tested the customer journey from homepage browsing to checkout and order confirmation. Then we tested the admin journey, including the dashboard, product management, and order status updates. During testing, we corrected problems and made the flow easier to present. Some features are still future improvements, such as real online payment, reviews, coupons, category management, and better role-based permissions."
+
+Key screenshots to show:
+- Customer order confirmation.
+- My Orders page.
+- Admin products page.
+- Admin orders page.
+
+Estimated speaking time:
+- 1 minute.
+
+
+F. Final Result
+
+Presentation slide content:
+- Final result: a functional Laravel furniture e-commerce platform.
+- Customer side:
+  - browse products
+  - view product details
+  - use cart
+  - checkout
+  - view orders
+- Admin side:
+  - dashboard
+  - manage products
+  - manage order statuses
+- The project shows frontend, backend, database, authentication, and admin management working together.
+
+Simple speech for the presenter:
+"The final result is a functional Laravel furniture e-commerce platform. It has a customer side where users can browse products, add items to cart, checkout, and view orders. It also has an admin side where the admin can view dashboard statistics, manage products, and update order statuses. This project helped us apply Laravel, MySQL, Blade, CSS, JavaScript, authentication, and database relationships in one complete website."
+
+Key screenshots to show:
+- Homepage.
+- Checkout.
+- Order confirmation.
+- Admin dashboard.
+
+Estimated speaking time:
+- 1 minute.
+
+Total estimated time for section 14:
+- Around 7 minutes if presented fully.
+- Around 3 to 4 minutes if summarized.
+
+
+15. Live Website Demonstration Segment For The Jury
+
+Purpose of this section:
+This part is for showing the real website live during the presentation. The demo should be organized, fast, and clear. The goal is to show both the customer side and admin side without wasting time.
+
+Recommended demo duration:
+- 4 to 6 minutes.
+
+
+A. Before Starting The Demo
+
+Preparation checklist:
+1. Open XAMPP.
+2. Start Apache.
+3. Start MySQL.
+4. Open the FurniHome project in VS Code.
+5. Open terminal in the project folder.
+6. Run:
+   php artisan serve
+7. Open the website:
+   http://127.0.0.1:8000
+8. Prepare a customer account before the presentation.
+9. Prepare the admin account before the presentation.
+10. Prepare the database with:
+   - products
+   - categories
+   - product variants
+   - sample orders
+11. Keep important pages already bookmarked or ready:
+   - homepage
+   - login
+   - cart
+   - my orders
+   - admin dashboard
+   - admin products
+   - admin orders
+
+Important notes:
+- Card payment is simulated, not real.
+- Admin access currently uses the email admin@furnihome.com.
+- Do not change code before the presentation day.
+- Test the demo at least one day before.
+
+
+B. Customer Demo
+
+Step 1: Homepage
+- Open http://127.0.0.1:8000.
+- Show the hero section.
+- Scroll to categories.
+- Show collections.
+- Show product catalog.
+- Explain that products come from the database.
+
+Step 2: Product browsing
+- Open one product from the product catalog.
+- Show:
+  - image
+  - price
+  - description
+  - dimensions
+  - material
+  - variants
+- Select a variant.
+- Change quantity.
+
+Step 3: Cart
+- Add the product to cart.
+- Open cart page.
+- Show the product in the cart.
+- Update quantity.
+- Explain subtotal, delivery fee, and total.
+
+Step 4: Checkout
+- Open checkout page.
+- Fill delivery information.
+- Choose installation option.
+- Choose cash on delivery or simulated card payment.
+- If card is selected, explain clearly that it is only a simulation.
+- Place order.
+
+Step 5: Order result
+- Show order confirmation page.
+- Show order number, total, payment status, delivery status, installation status.
+- Open My Orders page.
+- Open invoice/details page.
+
+
+C. Admin Demo
+
+Step 1: Admin login
+- Logout from customer account if needed.
+- Login with the admin account.
+- Mention that admin access is currently based on admin email.
+
+Step 2: Admin dashboard
+- Open /admin/dashboard.
+- Show:
+  - total products
+  - completed orders
+  - cancelled orders
+  - customers
+  - total sales
+  - latest orders
+  - latest products
+
+Step 3: Product management
+- Open /admin/products.
+- Show product list.
+- Open Add Product or Edit Product page.
+- Explain that admin can create, update, and delete products.
+- Do not delete important demo products during the presentation.
+
+Step 4: Order management
+- Open /admin/orders.
+- Show order list.
+- Explain status dropdowns:
+  - order status
+  - payment status
+  - delivery status
+  - installation status
+- Change a status only if you prepared a sample order for demo.
+
+
+D. What Each Team Member Says During The Live Demo
+
+Member 1:
+- Introduces the live demo.
+- Shows homepage, categories, collections, and product catalog.
+
+Member 2:
+- Shows product browsing and product details.
+- Explains variants, price, dimensions, and quantity.
+
+Member 3:
+- Shows cart, checkout, and order confirmation.
+- Explains delivery, installation, payment simulation, and order result.
+
+Member 4:
+- Shows admin login, dashboard, and product management.
+- Explains admin product actions.
+
+Member 5:
+- Shows admin order management.
+- Concludes the live demo and connects it to the project goal.
+
+
+E. Demo Speech
+
+Member 1 demo speech:
+"Now we will show the website live. First, we open FurniHome on the local server at http://127.0.0.1:8000. This is the homepage. At the top, we have the brand and navigation. The hero section introduces the website. When we scroll down, we can see the furniture categories, such as Living Room, Bedroom, Dining Room, Office, Lighting, and Decor. We also have collections, which group products by style. Finally, this is the product catalog. These products are loaded from the database."
+
+Member 2 demo speech:
+"Now I will open one product. This is the product details page. Here the customer can see the product image, name, category, description, price, dimensions, and material. The product also has variants. When I click a variant, the image changes, so the customer can preview different options. The customer can also choose the quantity before adding the product to the cart."
+
+Member 3 demo speech:
+"Now I will add this product to the cart. In the cart page, we can see the selected product, variant, quantity, and total price. The customer can increase or decrease the quantity, or remove the product. Then we continue to checkout. In checkout, the customer enters delivery information, chooses whether they want free installation, and chooses the payment method. Cash on delivery is available, and card payment is only simulated. After placing the order, the website shows the confirmation page. Then the customer can open My Orders and view the invoice details."
+
+Member 4 demo speech:
+"Now we will show the admin side. We login using the admin account. In this project, admin access is currently protected using the admin email. After login, we arrive at the admin dashboard. The dashboard shows important information for the store, such as total products, completed orders, cancelled orders, customers, total sales, latest orders, and latest products. Now we open the products page. Here the admin can see all products. The admin can add a new product, edit an existing product, upload an image, or delete a product."
+
+Member 5 demo speech:
+"Finally, we show order management. In the admin orders page, the admin can see customer orders and update their statuses. The admin can update the order status, payment status, delivery status, and installation status. This is important because after a customer places an order, the store needs to follow the order until delivery and installation are completed. This concludes the live demo. We showed the customer side and the admin side, so FurniHome works as a complete furniture e-commerce platform."
+
+
+F. Backup Plan If The Website Does Not Work
+
+Professional backup plan:
+- Prepare screenshots in the PowerPoint for every important page:
+  - homepage
+  - product page
+  - cart
+  - checkout
+  - confirmation
+  - my orders
+  - admin dashboard
+  - admin products
+  - admin orders
+- Prepare a local recorded video of the website demo.
+- Keep XAMPP and database ready before the presentation.
+- Test Apache and MySQL before entering the classroom.
+- Test php artisan serve before the presentation.
+- Keep the admin and customer accounts ready.
+- Keep sample products and orders ready in the database.
+- Do not change code before the presentation day.
+- Test the website at least one day before.
+- If the live website fails, say:
+  "We prepared a backup video and screenshots to show the same user journey. The project works locally, but to save time we will continue with the prepared demo materials."
+
+Backup speech:
+"If the live server does not work during the presentation, we will continue professionally using screenshots or a recorded video. This backup shows the same customer journey and admin journey. We prepared it because technical problems can happen during live presentations, especially with local servers and databases."
+
+
+16. Clean Final Summary For ChatGPT
+
+FurniHome is a Laravel 12 furniture e-commerce website. It uses PHP/Laravel for backend logic, MySQL for the database, Blade for frontend views, and custom CSS/JavaScript for design and interactions. Customers can browse categories and collections, view products, choose variants, add products to cart, checkout with delivery and free installation, and view order history and invoices. Admin can log in, view dashboard statistics, manage products, and update order/payment/delivery/installation statuses. The database includes users, categories, products, variants, carts, cart items, orders, order items, payments, deliveries, installations, addresses, and reviews. Main strengths are clean design, complete customer shopping flow, admin management, and organized database relationships. Main limitations are no real payment gateway, no wishlist, no review UI, no saved contact messages, no coupon logic, no category admin CRUD, and admin access uses a fixed email instead of the role column.
